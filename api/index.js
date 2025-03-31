@@ -29,7 +29,10 @@ const ioHandler = (req, res) => {
             transports: ['polling'],
             pingTimeout: 60000,
             pingInterval: 25000,
-            connectTimeout: 45000
+            connectTimeout: 45000,
+            allowEIO3: true,
+            allowUpgrades: false,
+            cookie: false
         });
 
         io.on('connection', (socket) => {
@@ -108,6 +111,11 @@ app.get('/', (req, res) => {
 // 상태 확인용 엔드포인트
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
+});
+
+// 404 처리
+app.use((req, res) => {
+    res.status(404).json({ error: 'Not Found' });
 });
 
 module.exports = app; 
