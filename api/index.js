@@ -12,19 +12,21 @@ app.use((req, res, next) => {
 });
 
 const players = new Map();
+let io = null;
 
 const ioHandler = (req, res) => {
-    if (!res.socket.server.io) {
+    if (!io) {
         console.log('* First use, starting socket.io');
 
-        const io = new Server(res.socket.server, {
-            path: '/api/socketio',
+        io = new Server(res.socket.server, {
+            path: '/socket.io',
             addTrailingSlash: false,
             cors: {
                 origin: '*',
                 methods: ['GET', 'POST'],
                 credentials: true
-            }
+            },
+            transports: ['polling', 'websocket']
         });
 
         io.on('connection', (socket) => {
@@ -84,20 +86,16 @@ const ioHandler = (req, res) => {
                 io.emit('playerDisconnected', socket.id);
             });
         });
-
-        res.socket.server.io = io;
-    } else {
-        console.log('socket.io already running');
     }
     res.end();
 };
 
+// Socket.IO 엔드포인트
+app.get('/socket.io', ioHandler);
+
 // 정적 파일 제공 설정
 app.use(express.static(path.join(__dirname, '../')));
 app.use('/js', express.static(path.join(__dirname, '../js')));
-
-// Socket.IO 엔드포인트
-app.get('/api/socketio', ioHandler);
 
 // 루트 경로 처리
 app.get('/', (req, res) => {

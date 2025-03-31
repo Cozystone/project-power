@@ -12,11 +12,14 @@ class Game {
         this.health = 100;
         this.weapons = ['pistol'];
         this.powerUps = [];
+        this.buildings = [];
 
         this.setupControls();
         this.setupScene();
         this.setupEventListeners();
         this.animate();
+
+        this.setupSocketEvents();
     }
 
     setupControls() {
@@ -33,6 +36,7 @@ class Game {
         this.moveSpeed = 0.1;
         this.jumpForce = 0.5;
         this.velocity = new THREE.Vector3();
+        this.gravity = 0.01;
     }
 
     setupScene() {
@@ -119,21 +123,28 @@ class Game {
         document.addEventListener('mousemove', (event) => {
             if (this.controls.mouseLook) {
                 this.camera.rotation.y -= event.movementX * 0.002;
-                this.camera.rotation.x -= event.movementY * 0.002;
+                this.camera.rotation.x = Math.max(
+                    -Math.PI / 2,
+                    Math.min(Math.PI / 2, this.camera.rotation.x - event.movementY * 0.002)
+                );
             }
         });
 
-        // 소켓 이벤트
+        // 우클릭 메뉴 방지
+        document.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+        });
+
+        // 화면 크기 조정
+        window.addEventListener('resize', () => {
+            this.camera.aspect = window.innerWidth / window.innerHeight;
+            this.camera.updateProjectionMatrix();
+            this.renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+    }
+
+    setupSocketEvents() {
         this.socket.on('currentPlayers', (players) => {
-            players.forEach((player) => {
-                this.addPlayer(player);
-            });
-        });
-
-        this.socket.on('newPlayer', (player) => {
-            this.addPlayer(player);
-        });
-
         this.socket.on('playerMoved', (player) => {
             if (this.players.has(player.id)) {
                 this.players.get(player.id).position.copy(player.position);
