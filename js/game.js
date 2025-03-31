@@ -53,11 +53,13 @@ class Game {
 
         // 마우스 컨트롤 설정
         document.addEventListener('mousemove', (event) => {
-            // 좌우 회전
-            this.cameraRotation.y -= event.movementX * 0.002;
-            // 상하 회전 (기존 제한 유지)
-            this.cameraRotation.x -= event.movementX * 0.002;
-            this.cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotation.x));
+            if (this.controls.mouseLook) {
+                // 좌우 회전
+                this.cameraRotation.y -= event.movementX * 0.002;
+                // 상하 회전
+                this.cameraRotation.x -= event.movementY * 0.002;
+                this.cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotation.x));
+            }
         });
     }
 
@@ -416,8 +418,8 @@ class Game {
             
             moveDirection.normalize();
             
-            // 카메라 방향에 따라 이동 방향 조정 (좌우 회전 없이)
-            const cameraRotation = new THREE.Euler(0, 0, 0);
+            // 카메라 방향에 따라 이동 방향 조정
+            const cameraRotation = new THREE.Euler(0, this.cameraRotation.y, 0);
             moveDirection.applyEuler(cameraRotation);
             
             this.localPlayer.position.add(moveDirection.multiplyScalar(this.moveSpeed));
