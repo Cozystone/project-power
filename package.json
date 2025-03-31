@@ -1,0 +1,21 @@
+{
+  "name": "project-power",
+  "version": "1.0.0",
+  "description": "멀티플레이어 슈팅 게임",
+  "main": "server.js",
+  "engines": {
+    "node": "18.x"
+  },
+  "scripts": {
+    "start": "node server.js",
+    "dev": "nodemon server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "socket.io": "^4.4.1",
+    "three": "^0.137.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  }
+} 

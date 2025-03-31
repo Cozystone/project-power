@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Power</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+        }
+        #game-container {
+            width: 100vw;
+            height: 100vh;
+        }
+        #hud {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            color: white;
+            font-family: Arial, sans-serif;
+            font-size: 20px;
+        }
+        #health-bar {
+            width: 200px;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid white;
+        }
+        #health-fill {
+            width: 100%;
+            height: 100%;
+            background: red;
+            transition: width 0.3s;
+        }
+        #weapon-slots {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        .weapon-slot {
+            width: 50px;
+            height: 50px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid white;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container"></div>
+    <div id="hud">
+        <div id="health-bar">
+            <div id="health-fill"></div>
+        </div>
+        <div id="weapon-slots">
+            <div class="weapon-slot"></div>
+            <div class="weapon-slot"></div>
+        </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="js/game.js"></script>
+</body>
+</html> 
