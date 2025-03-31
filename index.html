@@ -63,20 +63,40 @@
         // Socket.IO 연결 설정
         const socket = io({
             path: '/api/socketio',
-            transports: ['polling', 'websocket'],
+            autoConnect: true,
             reconnection: true,
-            reconnectionAttempts: 5,
-            reconnectionDelay: 1000
+            reconnectionAttempts: Infinity,
+            reconnectionDelay: 1000,
+            transports: ['polling', 'websocket']
         });
 
+        // 연결 이벤트
         socket.on('connect', () => {
             console.log('서버에 연결되었습니다.');
+            console.log('Socket ID:', socket.id);
+            console.log('전송 방식:', socket.io.engine.transport.name);
         });
 
+        // 연결 에러 이벤트
         socket.on('connect_error', (error) => {
-            console.error('연결 오류:', error);
+            console.error('연결 오류:', error.message);
             console.log('연결 상태:', socket.connected);
             console.log('전송 방식:', socket.io.engine.transport.name);
+        });
+
+        // 연결 끊김 이벤트
+        socket.on('disconnect', (reason) => {
+            console.log('연결이 끊어졌습니다:', reason);
+        });
+
+        // 재연결 시도 이벤트
+        socket.io.on('reconnect_attempt', () => {
+            console.log('서버에 재연결을 시도합니다...');
+        });
+
+        // 재연결 성공 이벤트
+        socket.io.on('reconnect', (attemptNumber) => {
+            console.log('재연결 성공! 시도 횟수:', attemptNumber);
         });
     </script>
     <script src="/js/game.js"></script>
