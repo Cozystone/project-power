@@ -145,6 +145,15 @@ class Game {
 
     setupSocketEvents() {
         this.socket.on('currentPlayers', (players) => {
+            players.forEach((player) => {
+                this.addPlayer(player);
+            });
+        });
+
+        this.socket.on('newPlayer', (player) => {
+            this.addPlayer(player);
+        });
+
         this.socket.on('playerMoved', (player) => {
             if (this.players.has(player.id)) {
                 this.players.get(player.id).position.copy(player.position);
@@ -158,6 +167,13 @@ class Game {
 
         this.socket.on('healthUpdate', (health) => {
             this.updateHealth(health);
+        });
+
+        this.socket.on('playerDisconnected', (playerId) => {
+            if (this.players.has(playerId)) {
+                this.scene.remove(this.players.get(playerId));
+                this.players.delete(playerId);
+            }
         });
     }
 

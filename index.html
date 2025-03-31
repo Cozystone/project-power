@@ -66,7 +66,10 @@
             reconnection: true,
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
-            transports: ['polling', 'websocket']
+            transports: ['polling'],
+            timeout: 60000,
+            pingInterval: 25000,
+            pingTimeout: 45000
         });
 
         // 연결 이벤트

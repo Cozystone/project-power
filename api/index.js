@@ -26,7 +26,10 @@ const ioHandler = (req, res) => {
                 methods: ['GET', 'POST'],
                 credentials: true
             },
-            transports: ['polling', 'websocket']
+            transports: ['polling'],
+            pingTimeout: 60000,
+            pingInterval: 25000,
+            connectTimeout: 45000
         });
 
         io.on('connection', (socket) => {
