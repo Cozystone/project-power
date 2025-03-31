@@ -60,9 +60,18 @@ class Game {
                 this.cameraRotation.x -= event.movementY * 0.002;
                 this.cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotation.x));
                 
-                // 캐릭터 회전
+                // 캐릭터 전체 회전
                 if (this.localPlayer) {
                     this.localPlayer.rotation.y = this.cameraRotation.y;
+                    // 팔 회전
+                    this.localPlayer.children.forEach(child => {
+                        if (child.name === 'leftArm') {
+                            child.rotation.z = Math.PI / 4;
+                        }
+                        if (child.name === 'rightArm') {
+                            child.rotation.z = -Math.PI / 4;
+                        }
+                    });
                 }
             }
         });
@@ -415,16 +424,16 @@ class Game {
     updateCamera() {
         if (this.localPlayer) {
             // 카메라 위치 계산
-            const cameraOffset = new THREE.Vector3(0, 1.7, 0); // 1인칭 시점으로 높이 조정
+            const cameraOffset = new THREE.Vector3(0, 2, 3); // 높이와 거리 조정
             cameraOffset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.cameraRotation.x, this.cameraRotation.y, 0)));
             
             // 카메라 위치 설정
             this.camera.position.copy(this.localPlayer.position).add(cameraOffset);
             
-            // 카메라가 플레이어가 바라보는 방향을 향하도록 설정
+            // 카메라가 플레이어를 바라보도록 설정
             const lookAtPosition = new THREE.Vector3();
             lookAtPosition.copy(this.localPlayer.position);
-            lookAtPosition.y += 1.7; // 플레이어의 눈 높이
+            lookAtPosition.y += 1.5; // 플레이어의 몸체 중앙을 바라보도록 조정
             this.camera.lookAt(lookAtPosition);
         }
     }
@@ -505,12 +514,14 @@ class Game {
         });
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+        leftArm.name = 'leftArm';
         leftArm.position.set(-0.4, 1, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+        rightArm.name = 'rightArm';
         rightArm.position.set(0.4, 1, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
