@@ -16,7 +16,7 @@
   ],
   "routes": [
     {
-      "src": "/socket.io/(.*)",
+      "src": "/api/socketio/(.*)",
       "dest": "api/index.js",
       "headers": {
         "Access-Control-Allow-Origin": "*",

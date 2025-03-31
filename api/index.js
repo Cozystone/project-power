@@ -23,7 +23,7 @@ const ioHandler = (req, res) => {
         console.log('* First use, starting socket.io');
 
         io = new Server(res.socket.server, {
-            path: '/socket.io',
+            path: '/api/socketio',
             addTrailingSlash: false,
             cors: {
                 origin: '*',
@@ -38,13 +38,7 @@ const ioHandler = (req, res) => {
             allowEIO3: true,
             allowUpgrades: false,
             cookie: false,
-            maxHttpBufferSize: 1e8,
-            connectTimeout: 45000,
-            cors: {
-                origin: '*',
-                methods: ['GET', 'POST'],
-                credentials: true
-            }
+            maxHttpBufferSize: 1e8
         });
 
         io.on('connection', (socket) => {
@@ -109,7 +103,7 @@ const ioHandler = (req, res) => {
 };
 
 // Socket.IO 엔드포인트
-app.get('/socket.io', ioHandler);
+app.get('/api/socketio', ioHandler);
 
 // 정적 파일 제공 설정
 app.use(express.static(path.join(__dirname, '../')));

@@ -62,6 +62,7 @@
     <script>
         // Socket.IO 연결 설정
         const socket = io({
+            path: '/api/socketio',
             autoConnect: true,
             reconnection: true,
             reconnectionAttempts: Infinity,
@@ -73,10 +74,7 @@
             forceNew: true,
             upgrade: false,
             rememberUpgrade: false,
-            withCredentials: true,
-            extraHeaders: {
-                'Access-Control-Allow-Origin': '*'
-            }
+            withCredentials: true
         });
 
         // 연결 이벤트
