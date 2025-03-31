@@ -10,15 +10,23 @@ const io = require('socket.io')(server, {
     allowEIO3: true
 });
 const path = require('path');
+const express = require('express');
 
-app.use(require('express').static(path.join(__dirname, '../')));
+// 정적 파일 제공 설정
+app.use(express.static(path.join(__dirname, '../')));
+app.use('/js', express.static(path.join(__dirname, '../js')));
 
-// CORS 설정 추가
+// CORS 설정
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     next();
+});
+
+// 루트 경로 처리
+app.get('/', (req, res) => {
+    res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 const players = new Map();
