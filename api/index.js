@@ -8,6 +8,10 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+    if (req.method === 'OPTIONS') {
+        return res.status(200).end();
+    }
     next();
 });
 
@@ -24,15 +28,23 @@ const ioHandler = (req, res) => {
             cors: {
                 origin: '*',
                 methods: ['GET', 'POST'],
-                credentials: true
+                credentials: true,
+                allowedHeaders: ['Content-Type']
             },
             transports: ['polling'],
-            pingTimeout: 60000,
-            pingInterval: 25000,
-            connectTimeout: 45000,
+            pingTimeout: 30000,
+            pingInterval: 10000,
+            connectTimeout: 30000,
             allowEIO3: true,
             allowUpgrades: false,
-            cookie: false
+            cookie: false,
+            maxHttpBufferSize: 1e8,
+            connectTimeout: 45000,
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST'],
+                credentials: true
+            }
         });
 
         io.on('connection', (socket) => {

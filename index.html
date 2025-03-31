@@ -67,12 +67,16 @@
             reconnectionAttempts: Infinity,
             reconnectionDelay: 1000,
             transports: ['polling'],
-            timeout: 60000,
-            pingInterval: 25000,
-            pingTimeout: 45000,
+            timeout: 30000,
+            pingInterval: 10000,
+            pingTimeout: 30000,
             forceNew: true,
             upgrade: false,
-            rememberUpgrade: false
+            rememberUpgrade: false,
+            withCredentials: true,
+            extraHeaders: {
+                'Access-Control-Allow-Origin': '*'
+            }
         });
 
         // 연결 이벤트
