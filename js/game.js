@@ -6,20 +6,25 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
-        this.socket = io();
         this.players = new Map();
         this.localPlayer = null;
         this.health = 100;
         this.weapons = ['pistol'];
         this.powerUps = [];
         this.buildings = [];
+        this.playerId = Math.random().toString(36).substring(7);
 
         this.setupControls();
         this.setupScene();
         this.setupEventListeners();
+        
+        // 로컬 플레이어 초기화
+        this.initializeLocalPlayer();
+        
         this.animate();
 
-        this.setupSocketEvents();
+        // 초기 플레이어 상태 설정
+        this.updatePlayerState();
     }
 
     setupControls() {
@@ -143,73 +148,88 @@ class Game {
         });
     }
 
-    setupSocketEvents() {
-        this.socket.on('currentPlayers', (players) => {
-            players.forEach((player) => {
-                this.addPlayer(player);
+    async updatePlayerState() {
+        try {
+            const response = await fetch('/api/update', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    id: this.playerId,
+                    position: this.localPlayer ? this.localPlayer.position : { x: 0, y: 0, z: 0 },
+                    rotation: this.localPlayer ? { y: this.localPlayer.rotation.y } : { y: 0 },
+                    health: this.health,
+                    weapons: this.weapons,
+                    powerUps: this.powerUps
+                })
             });
-        });
 
-        this.socket.on('newPlayer', (player) => {
-            this.addPlayer(player);
-        });
-
-        this.socket.on('playerMoved', (player) => {
-            if (this.players.has(player.id)) {
-                this.players.get(player.id).position.copy(player.position);
-                this.players.get(player.id).rotation.y = player.rotation.y;
+            if (!response.ok) {
+                throw new Error('Failed to update player state');
             }
-        });
+        } catch (error) {
+            console.error('플레이어 상태 업데이트 오류:', error);
+        }
+    }
 
-        this.socket.on('playerShot', (data) => {
-            this.handleShot(data);
-        });
-
-        this.socket.on('healthUpdate', (health) => {
-            this.updateHealth(health);
-        });
-
-        this.socket.on('playerDisconnected', (playerId) => {
-            if (this.players.has(playerId)) {
-                this.scene.remove(this.players.get(playerId));
-                this.players.delete(playerId);
+    async fetchPlayers() {
+        try {
+            const response = await fetch('/api/players');
+            if (!response.ok) {
+                throw new Error('Failed to fetch players');
             }
-        });
+            const playersList = await response.json();
+            
+            // 기존 플레이어 제거
+            this.players.forEach(player => this.scene.remove(player));
+            this.players.clear();
+
+            // 새로운 플레이어 추가
+            playersList.forEach(player => {
+                if (player.id !== this.playerId) {
+                    this.addPlayer(player);
+                }
+            });
+        } catch (error) {
+            console.error('플레이어 목록 조회 오류:', error);
+        }
     }
 
     addPlayer(player) {
         const geometry = new THREE.BoxGeometry(1, 2, 1);
         const material = new THREE.MeshStandardMaterial({ color: 0x00ff00 });
         const playerMesh = new THREE.Mesh(geometry, material);
-        playerMesh.position.copy(player.position);
+        playerMesh.position.set(player.position.x, player.position.y, player.position.z);
+        playerMesh.rotation.y = player.rotation.y;
         this.scene.add(playerMesh);
         this.players.set(player.id, playerMesh);
-
-        if (player.id === this.socket.id) {
-            this.localPlayer = playerMesh;
-        }
     }
 
     shoot() {
         if (this.localPlayer) {
             const direction = new THREE.Vector3();
             this.camera.getWorldDirection(direction);
-            const bullet = {
-                position: this.localPlayer.position.clone(),
-                direction: direction.clone(),
-                speed: 2
-            };
-
-            this.socket.emit('playerShoot', bullet);
+            // 총알 효과 구현
+            const bulletGeometry = new THREE.SphereGeometry(0.1);
+            const bulletMaterial = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const bullet = new THREE.Mesh(bulletGeometry, bulletMaterial);
+            bullet.position.copy(this.localPlayer.position);
+            bullet.velocity = direction.multiplyScalar(2);
+            this.scene.add(bullet);
+            
+            // 1초 후 총알 제거
+            setTimeout(() => {
+                this.scene.remove(bullet);
+            }, 1000);
         }
     }
 
     handleShot(data) {
-        // 총알 효과 및 데미지 처리
-        if (data.playerId === this.socket.id) {
+        if (data.playerId === this.playerId) {
             this.health -= 10;
             this.updateHealth(this.health);
-            this.socket.emit('playerDamaged', { damage: 10 });
+            this.updatePlayerState();
         }
     }
 
@@ -249,22 +269,26 @@ class Game {
                 this.controls.canJump = true;
             }
 
-            // 서버에 위치 업데이트 전송
-            this.socket.emit('playerMovement', {
-                position: this.localPlayer.position,
-                rotation: { y: this.camera.rotation.y }
-            });
+            // 플레이어 상태 업데이트
+            this.updatePlayerState();
         }
+    }
+
+    initializeLocalPlayer() {
+        const geometry = new THREE.BoxGeometry(1, 2, 1);
+        const material = new THREE.MeshStandardMaterial({ color: 0xff0000 });
+        this.localPlayer = new THREE.Mesh(geometry, material);
+        this.localPlayer.position.set(0, 1, 0);
+        this.scene.add(this.localPlayer);
     }
 
     animate() {
         requestAnimationFrame(() => this.animate());
         this.updatePlayerMovement();
+        this.fetchPlayers();
         this.renderer.render(this.scene, this.camera);
     }
 }
 
-// 게임 시작
-window.addEventListener('load', () => {
-    new Game();
-}); 
+// 게임 인스턴스 생성
+const game = new Game(); 

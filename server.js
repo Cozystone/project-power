@@ -1,79 +1,57 @@
 const express = require('express');
 const app = express();
 const http = require('http').createServer(app);
-const io = require('socket.io')(http);
+const path = require('path');
 
-app.use(express.static(__dirname));
+// 정적 파일 제공
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.json());
 
-const players = new Map();
+// 플레이어 데이터 저장소
+let players = new Map();
 
-io.on('connection', (socket) => {
-    console.log('플레이어 접속:', socket.id);
-
-    // 새 플레이어 생성
-    players.set(socket.id, {
-        id: socket.id,
-        position: { x: Math.random() * 100 - 50, y: 0, z: Math.random() * 100 - 50 },
-        rotation: { y: 0 },
-        health: 100,
-        weapons: ['pistol'],
-        powerUps: []
-    });
-
-    // 현재 게임 상태 전송
-    socket.emit('currentPlayers', Array.from(players.values()));
-
-    // 다른 플레이어들에게 새 플레이어 알림
-    socket.broadcast.emit('newPlayer', players.get(socket.id));
-
-    // 플레이어 이동 업데이트
-    socket.on('playerMovement', (movementData) => {
-        const player = players.get(socket.id);
-        if (player) {
-            player.position = movementData.position;
-            player.rotation = movementData.rotation;
-            socket.broadcast.emit('playerMoved', player);
-        }
-    });
-
-    // 발사 이벤트
-    socket.on('playerShoot', (shootData) => {
-        socket.broadcast.emit('playerShot', {
-            playerId: socket.id,
-            ...shootData
+// 플레이어 상태 업데이트
+app.post('/api/update', (req, res) => {
+    const { id, position, rotation, health, weapons, powerUps } = req.body;
+    
+    if (!players.has(id)) {
+        players.set(id, {
+            id,
+            position: { x: Math.random() * 100 - 50, y: 0, z: Math.random() * 100 - 50 },
+            rotation: { y: 0 },
+            health: 100,
+            weapons: ['pistol'],
+            powerUps: []
         });
-    });
+    }
 
-    // 파워업 획득
-    socket.on('powerUpCollected', (powerUpData) => {
-        const player = players.get(socket.id);
-        if (player) {
-            player.powerUps.push(powerUpData);
-            socket.emit('powerUpUpdate', player.powerUps);
-        }
-    });
+    const player = players.get(id);
+    player.position = position;
+    player.rotation = rotation;
+    player.health = health;
+    player.weapons = weapons;
+    player.powerUps = powerUps;
 
-    // 데미지 처리
-    socket.on('playerDamaged', (damageData) => {
-        const player = players.get(socket.id);
-        if (player) {
-            player.health -= damageData.damage;
-            if (player.health <= 0) {
-                player.health = 100;
-                player.position = { x: Math.random() * 100 - 50, y: 0, z: Math.random() * 100 - 50 };
-            }
-            socket.emit('healthUpdate', player.health);
-        }
-    });
-
-    // 연결 해제
-    socket.on('disconnect', () => {
-        console.log('플레이어 접속 해제:', socket.id);
-        players.delete(socket.id);
-        io.emit('playerDisconnected', socket.id);
-    });
+    res.json({ success: true });
 });
 
+// 플레이어 목록 조회
+app.get('/api/players', (req, res) => {
+    res.json(Array.from(players.values()));
+});
+
+// 플레이어 제거
+app.delete('/api/players/:id', (req, res) => {
+    const { id } = req.params;
+    if (players.has(id)) {
+        players.delete(id);
+        res.json({ success: true });
+    } else {
+        res.status(404).json({ error: 'Player not found' });
+    }
+});
+
+// 서버 시작
 const PORT = process.env.PORT || 3000;
 http.listen(PORT, () => {
     console.log(`서버가 포트 ${PORT}에서 실행 중입니다.`);
