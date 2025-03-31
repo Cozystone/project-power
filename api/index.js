@@ -1,12 +1,15 @@
 const app = require('express')();
 const server = require('http').Server(app);
 const io = require('socket.io')(server, {
+    path: '/api/socketio',
     cors: {
         origin: "*",
         methods: ["GET", "POST"],
-        transports: ['websocket', 'polling'],
+        allowedHeaders: ["Content-Type"],
         credentials: true
     },
+    addTrailingSlash: false,
+    transports: ['polling', 'websocket'],
     allowEIO3: true
 });
 const path = require('path');
@@ -23,6 +26,20 @@ app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
     next();
 });
+
+// Socket.IO 핸들러
+const socketHandler = (req, res) => {
+    if (!res.socket.server.io) {
+        console.log('First use, starting socket.io');
+        res.socket.server.io = io;
+    } else {
+        console.log('Socket.io already running');
+    }
+    res.end();
+};
+
+// Socket.IO 엔드포인트
+app.get('/api/socketio', socketHandler);
 
 // 루트 경로 처리
 app.get('/', (req, res) => {
@@ -89,13 +106,13 @@ io.on('connection', (socket) => {
     });
 });
 
-// 상태 확인용 엔드포인트 추가
+// 상태 확인용 엔드포인트
 app.get('/health', (req, res) => {
     res.status(200).json({ status: 'ok' });
 });
 
-const port = process.env.PORT || 3000;
 if (process.env.NODE_ENV !== 'production') {
+    const port = process.env.PORT || 3000;
     server.listen(port, () => {
         console.log(`서버가 포트 ${port}에서 실행 중입니다.`);
     });

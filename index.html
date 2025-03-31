@@ -62,8 +62,8 @@
     <script>
         // Socket.IO 연결 설정
         const socket = io({
-            transports: ['websocket'],
-            upgrade: false,
+            path: '/api/socketio',
+            transports: ['polling', 'websocket'],
             reconnection: true,
             reconnectionAttempts: 5,
             reconnectionDelay: 1000
@@ -75,6 +75,8 @@
 
         socket.on('connect_error', (error) => {
             console.error('연결 오류:', error);
+            console.log('연결 상태:', socket.connected);
+            console.log('전송 방식:', socket.io.engine.transport.name);
         });
     </script>
     <script src="/js/game.js"></script>
