@@ -38,7 +38,13 @@ const ioHandler = (req, res) => {
             allowEIO3: true,
             allowUpgrades: false,
             cookie: false,
-            maxHttpBufferSize: 1e8
+            maxHttpBufferSize: 1e8,
+            connectTimeout: 45000,
+            cors: {
+                origin: '*',
+                methods: ['GET', 'POST'],
+                credentials: true
+            }
         });
 
         io.on('connection', (socket) => {
