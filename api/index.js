@@ -23,7 +23,7 @@ const ioHandler = (req, res) => {
         console.log('* First use, starting socket.io');
 
         io = new Server(res.socket.server, {
-            path: '/api/socketio',
+            path: '/socket.io',
             addTrailingSlash: false,
             cors: {
                 origin: '*',
@@ -103,7 +103,7 @@ const ioHandler = (req, res) => {
 };
 
 // Socket.IO 엔드포인트
-app.get('/api/socketio', ioHandler);
+app.get('/socket.io', ioHandler);
 
 // 정적 파일 제공 설정
 app.use(express.static(path.join(__dirname, '../')));
