@@ -50,6 +50,15 @@ class Game {
         this.jumpForce = 0.5;
         this.velocity = new THREE.Vector3();
         this.gravity = 0.01;
+
+        // 마우스 컨트롤 설정
+        document.addEventListener('mousemove', (event) => {
+            // 좌우 회전
+            this.cameraRotation.y -= event.movementX * 0.002;
+            // 상하 회전 (기존 제한 유지)
+            this.cameraRotation.x -= event.movementX * 0.002;
+            this.cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotation.x));
+        });
     }
 
     setupScene() {
@@ -192,16 +201,6 @@ class Game {
         document.addEventListener('mouseup', (event) => {
             if (event.button === 2) {
                 this.controls.mouseLook = false;
-            }
-        });
-
-        document.addEventListener('mousemove', (event) => {
-            if (this.controls.mouseLook) {
-                // 좌우 회전 제거, 상하 회전만 허용
-                this.cameraRotation.x = Math.max(
-                    -Math.PI / 2,
-                    Math.min(Math.PI / 2, this.cameraRotation.x - event.movementY * 0.002)
-                );
             }
         });
 
@@ -395,27 +394,15 @@ class Game {
     }
 
     updateCamera() {
-        if (this.localPlayer) {
-            // 카메라 위치 계산
-            const cameraPosition = new THREE.Vector3();
-            cameraPosition.copy(this.localPlayer.position);
-            
-            // 카메라 오프셋 적용 (좌우 회전 없이)
-            const offset = this.cameraOffset.clone();
-            offset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(
-                this.cameraRotation.x,
-                0, // 좌우 회전 고정
-                0
-            )));
-            
-            cameraPosition.add(offset);
-            
-            // 카메라 위치 업데이트
-            this.camera.position.copy(cameraPosition);
-            
-            // 카메라가 플레이어를 바라보도록 설정
-            this.camera.lookAt(this.localPlayer.position);
-        }
+        // 카메라 위치 계산
+        const cameraOffset = new THREE.Vector3(0, 2, 5);
+        cameraOffset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.cameraRotation.x, this.cameraRotation.y, 0)));
+        
+        // 카메라 위치 설정
+        this.camera.position.copy(this.localPlayer.position).add(cameraOffset);
+        
+        // 카메라가 플레이어를 바라보도록 설정
+        this.camera.lookAt(this.localPlayer.position);
     }
 
     updatePlayerMovement() {
