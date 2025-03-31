@@ -59,6 +59,11 @@ class Game {
                 // 상하 회전
                 this.cameraRotation.x -= event.movementY * 0.002;
                 this.cameraRotation.x = Math.max(-Math.PI/2, Math.min(Math.PI/2, this.cameraRotation.x));
+                
+                // 캐릭터 회전
+                if (this.localPlayer) {
+                    this.localPlayer.rotation.y = this.cameraRotation.y;
+                }
             }
         });
     }
@@ -197,11 +202,23 @@ class Game {
                 this.shoot();
             } else if (event.button === 2) { // 우클릭
                 this.controls.mouseLook = true;
+                // 마우스 포인터 잠금
+                document.body.requestPointerLock();
             }
         });
 
         document.addEventListener('mouseup', (event) => {
             if (event.button === 2) {
+                this.controls.mouseLook = false;
+                // 마우스 포인터 잠금 해제
+                document.exitPointerLock();
+            }
+        });
+
+        // ESC 키로 마우스 포인터 잠금 해제
+        document.addEventListener('keydown', (event) => {
+            if (event.code === 'Escape') {
+                document.exitPointerLock();
                 this.controls.mouseLook = false;
             }
         });
@@ -396,15 +413,20 @@ class Game {
     }
 
     updateCamera() {
-        // 카메라 위치 계산
-        const cameraOffset = new THREE.Vector3(0, 2, 5);
-        cameraOffset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.cameraRotation.x, this.cameraRotation.y, 0)));
-        
-        // 카메라 위치 설정
-        this.camera.position.copy(this.localPlayer.position).add(cameraOffset);
-        
-        // 카메라가 플레이어를 바라보도록 설정
-        this.camera.lookAt(this.localPlayer.position);
+        if (this.localPlayer) {
+            // 카메라 위치 계산
+            const cameraOffset = new THREE.Vector3(0, 1.7, 0); // 1인칭 시점으로 높이 조정
+            cameraOffset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.cameraRotation.x, this.cameraRotation.y, 0)));
+            
+            // 카메라 위치 설정
+            this.camera.position.copy(this.localPlayer.position).add(cameraOffset);
+            
+            // 카메라가 플레이어가 바라보는 방향을 향하도록 설정
+            const lookAtPosition = new THREE.Vector3();
+            lookAtPosition.copy(this.localPlayer.position);
+            lookAtPosition.y += 1.7; // 플레이어의 눈 높이
+            this.camera.lookAt(lookAtPosition);
+        }
     }
 
     updatePlayerMovement() {
