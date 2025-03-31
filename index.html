@@ -57,8 +57,26 @@
             <div class="weapon-slot"></div>
         </div>
     </div>
-    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.4.1/socket.io.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // Socket.IO 연결 설정
+        const socket = io({
+            transports: ['websocket'],
+            upgrade: false,
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000
+        });
+
+        socket.on('connect', () => {
+            console.log('서버에 연결되었습니다.');
+        });
+
+        socket.on('connect_error', (error) => {
+            console.error('연결 오류:', error);
+        });
+    </script>
     <script src="js/game.js"></script>
 </body>
 </html> 

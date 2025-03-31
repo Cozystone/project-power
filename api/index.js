@@ -1,9 +1,25 @@
 const app = require('express')();
 const server = require('http').Server(app);
-const io = require('socket.io')(server);
+const io = require('socket.io')(server, {
+    cors: {
+        origin: "*",
+        methods: ["GET", "POST"],
+        transports: ['websocket', 'polling'],
+        credentials: true
+    },
+    allowEIO3: true
+});
 const path = require('path');
 
 app.use(require('express').static(path.join(__dirname, '../')));
+
+// CORS 설정 추가
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+    next();
+});
 
 const players = new Map();
 
@@ -65,9 +81,16 @@ io.on('connection', (socket) => {
     });
 });
 
-const port = process.env.PORT || 3000;
-server.listen(port, () => {
-    console.log(`서버가 포트 ${port}에서 실행 중입니다.`);
+// 상태 확인용 엔드포인트 추가
+app.get('/health', (req, res) => {
+    res.status(200).json({ status: 'ok' });
 });
+
+const port = process.env.PORT || 3000;
+if (process.env.NODE_ENV !== 'production') {
+    server.listen(port, () => {
+        console.log(`서버가 포트 ${port}에서 실행 중입니다.`);
+    });
+}
 
 module.exports = app; 
