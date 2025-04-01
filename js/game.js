@@ -90,15 +90,15 @@ class Game {
         this.scene.add(directionalLight);
 
         // 바닥 텍스처 추가
-        const groundTexture = this.textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
+        const groundTexture = this.textureLoader.load('/textures/grass.jpg');
         groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
-        groundTexture.repeat.set(4, 4);
+        groundTexture.repeat.set(100, 100);
         const groundMaterial = new THREE.MeshStandardMaterial({ 
             map: groundTexture,
             roughness: 0.8,
             metalness: 0.2
         });
-        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundGeometry = new THREE.PlaneGeometry(1000, 1000);
         const ground = new THREE.Mesh(groundGeometry, groundMaterial);
         ground.rotation.x = -Math.PI / 2;
         ground.receiveShadow = true;
@@ -106,7 +106,7 @@ class Game {
 
         // 배경 추가
         const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
-        const skyTexture = this.textureLoader.load('https://threejs.org/examples/textures/cube/skybox/px.jpg');
+        const skyTexture = this.textureLoader.load('/textures/sky.jpg');
         const skyMaterial = new THREE.MeshBasicMaterial({ 
             map: skyTexture,
             side: THREE.BackSide
@@ -143,9 +143,9 @@ class Game {
             const building = new THREE.Mesh(buildingGeometry, buildingMaterial);
             
             // 건물 위치 설정
-            building.position.x = Math.random() * 80 - 40;
+            building.position.x = Math.random() * 800 - 400;
             building.position.y = height / 2;
-            building.position.z = Math.random() * 80 - 40;
+            building.position.z = Math.random() * 800 - 400;
             
             // 그림자 설정
             building.castShadow = true;
