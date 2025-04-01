@@ -6,6 +6,9 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
+        // GLTFLoader 추가
+        this.loader = new THREE.GLTFLoader();
+
         this.players = new Map();
         this.localPlayer = null;
         this.health = 100;
@@ -113,8 +116,31 @@ class Game {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // 건물들 생성
-        this.createBuildings();
+        // 3D 모델 로드
+        this.loader.load(
+            'https://drive.google.com/uc?export=download&id=11O3JfAOxDDeDeqJ1f8P3_P61lxAmjYYi',
+            (gltf) => {
+                const model = gltf.scene;
+                // 모델 크기 조정
+                model.scale.set(0.1, 0.1, 0.1);
+                // 모델 위치 설정
+                model.position.set(0, 0, 0);
+                // 그림자 설정
+                model.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                this.scene.add(model);
+            },
+            (xhr) => {
+                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
+            },
+            (error) => {
+                console.error('모델 로딩 중 오류 발생:', error);
+            }
+        );
 
         // 카메라 위치 설정
         this.camera.position.set(0, 2, 5);
