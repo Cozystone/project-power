@@ -547,7 +547,7 @@ class Game {
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0, 0); // 초기 위치를 0으로 설정
+        this.localPlayer.position.set(0, 0.5, 0); // 발 높이만큼 올림
         this.scene.add(this.localPlayer);
     }
 
