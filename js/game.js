@@ -90,7 +90,7 @@ class Game {
         this.scene.add(directionalLight);
 
         // 바닥 텍스처 추가
-        const groundTexture = this.textureLoader.load('/textures/grass.jpg');
+        const groundTexture = this.textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
         groundTexture.wrapS = groundTexture.wrapT = THREE.RepeatWrapping;
         groundTexture.repeat.set(100, 100);
         const groundMaterial = new THREE.MeshStandardMaterial({ 
@@ -106,7 +106,7 @@ class Game {
 
         // 배경 추가
         const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
-        const skyTexture = this.textureLoader.load('/textures/sky.jpg');
+        const skyTexture = this.textureLoader.load('https://threejs.org/examples/textures/cube/skybox/px.jpg');
         const skyMaterial = new THREE.MeshBasicMaterial({ 
             map: skyTexture,
             side: THREE.BackSide
@@ -329,12 +329,14 @@ class Game {
         });
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+        leftArm.name = 'leftArm';
         leftArm.position.set(-0.4, 1, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+        rightArm.name = 'rightArm';
         rightArm.position.set(0.4, 1, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
@@ -478,35 +480,76 @@ class Game {
     }
 
     initializeLocalPlayer() {
-        // GLTF 로더 생성
-        const loader = new GLTFLoader();
+        // 플레이어 모델 생성
+        const playerGroup = new THREE.Group();
         
-        // 사람 모델 로드
-        loader.load('/models/character.glb', (gltf) => {
-            this.localPlayer = gltf.scene;
-            this.localPlayer.position.set(0, 0, 0); // 위치 조정
-            this.localPlayer.scale.set(1, 1, 1); // 크기 조정
-            
-            // 애니메이션 설정
-            this.mixer = new THREE.AnimationMixer(this.localPlayer);
-            this.animations = gltf.animations;
-            
-            // 기본 idle 애니메이션 재생
-            const idleAction = this.mixer.clipAction(
-                this.animations.find(animation => animation.name === 'Idle')
-            );
-            idleAction.play();
-            
-            this.scene.add(this.localPlayer);
-        }, undefined, (error) => {
-            console.error('모델 로드 중 오류 발생:', error);
-            // 로드 실패시 기본 박스로 대체
-            const geometry = new THREE.BoxGeometry(1, 2, 1);
-            const material = new THREE.MeshPhongMaterial({ color: 0xff0000 });
-            this.localPlayer = new THREE.Mesh(geometry, material);
-            this.localPlayer.position.set(0, 1, 0);
-            this.scene.add(this.localPlayer);
+        // 몸체
+        const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1, 8);
+        const bodyMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
         });
+        const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+        body.position.y = 0.5;
+        body.castShadow = true;
+        playerGroup.add(body);
+        
+        // 머리
+        const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+        const headMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        const head = new THREE.Mesh(headGeometry, headMaterial);
+        head.position.y = 1.5;
+        head.castShadow = true;
+        playerGroup.add(head);
+        
+        // 팔
+        const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 8);
+        const armMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        
+        const leftArm = new THREE.Mesh(armGeometry, armMaterial);
+        leftArm.name = 'leftArm';
+        leftArm.position.set(-0.4, 1, 0);
+        leftArm.rotation.z = Math.PI / 4;
+        leftArm.castShadow = true;
+        playerGroup.add(leftArm);
+        
+        const rightArm = new THREE.Mesh(armGeometry, armMaterial);
+        rightArm.name = 'rightArm';
+        rightArm.position.set(0.4, 1, 0);
+        rightArm.rotation.z = -Math.PI / 4;
+        rightArm.castShadow = true;
+        playerGroup.add(rightArm);
+        
+        // 다리
+        const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.7, 8);
+        const legMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        
+        const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
+        leftLeg.position.set(-0.2, 0, 0);
+        leftLeg.castShadow = true;
+        playerGroup.add(leftLeg);
+        
+        const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
+        rightLeg.position.set(0.2, 0, 0);
+        rightLeg.castShadow = true;
+        playerGroup.add(rightLeg);
+        
+        this.localPlayer = playerGroup;
+        this.localPlayer.position.set(0, 1, 0);
+        this.scene.add(this.localPlayer);
     }
 
     animate() {
