@@ -547,7 +547,7 @@ class Game {
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0.5, 0); // 다른 플레이어와 동일한 방식으로 위치 설정
+        this.localPlayer.position.set(0, 0, 0); // 초기 위치를 0으로 설정
         this.scene.add(this.localPlayer);
     }
 
