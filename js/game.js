@@ -104,11 +104,10 @@ class Game {
         ground.receiveShadow = true;
         this.scene.add(ground);
 
-        // 배경 추가
+        // 배경 추가 (파란 하늘)
         const skyGeometry = new THREE.SphereGeometry(500, 32, 32);
-        const skyTexture = this.textureLoader.load('https://threejs.org/examples/textures/cube/skybox/px.jpg');
         const skyMaterial = new THREE.MeshBasicMaterial({ 
-            map: skyTexture,
+            color: 0x87CEEB, // 하늘색
             side: THREE.BackSide
         });
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
@@ -483,32 +482,44 @@ class Game {
         // 플레이어 모델 생성
         const playerGroup = new THREE.Group();
         
-        // 몸체
-        const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1, 8);
+        // 몸체 (더 세련된 형태)
+        const bodyGeometry = new THREE.CylinderGeometry(0.25, 0.3, 1.2, 12);
         const bodyMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xff0000,
             roughness: 0.5,
             metalness: 0.5
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = 0.5;
+        body.position.y = 0.6;
         body.castShadow = true;
         playerGroup.add(body);
         
-        // 머리
-        const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
+        // 머리 (더 자연스러운 형태)
+        const headGeometry = new THREE.SphereGeometry(0.25, 16, 16);
         const headMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xff0000,
             roughness: 0.5,
             metalness: 0.5
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = 1.5;
+        head.position.y = 1.8;
         head.castShadow = true;
         playerGroup.add(head);
         
-        // 팔
-        const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 8);
+        // 목
+        const neckGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.3, 8);
+        const neckMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        const neck = new THREE.Mesh(neckGeometry, neckMaterial);
+        neck.position.y = 1.5;
+        neck.castShadow = true;
+        playerGroup.add(neck);
+        
+        // 팔 (더 자연스러운 형태)
+        const armGeometry = new THREE.CylinderGeometry(0.08, 0.1, 0.6, 8);
         const armMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xff0000,
             roughness: 0.5,
@@ -517,20 +528,20 @@ class Game {
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
         leftArm.name = 'leftArm';
-        leftArm.position.set(-0.4, 1, 0);
+        leftArm.position.set(-0.4, 1.2, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
         rightArm.name = 'rightArm';
-        rightArm.position.set(0.4, 1, 0);
+        rightArm.position.set(0.4, 1.2, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
         playerGroup.add(rightArm);
         
-        // 다리
-        const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.7, 8);
+        // 다리 (더 자연스러운 형태)
+        const legGeometry = new THREE.CylinderGeometry(0.12, 0.15, 0.8, 8);
         const legMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xff0000,
             roughness: 0.5,
@@ -538,14 +549,32 @@ class Game {
         });
         
         const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-        leftLeg.position.set(-0.2, 0, 0);
+        leftLeg.position.set(-0.15, 0, 0);
         leftLeg.castShadow = true;
         playerGroup.add(leftLeg);
         
         const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-        rightLeg.position.set(0.2, 0, 0);
+        rightLeg.position.set(0.15, 0, 0);
         rightLeg.castShadow = true;
         playerGroup.add(rightLeg);
+        
+        // 발
+        const footGeometry = new THREE.BoxGeometry(0.2, 0.1, 0.3);
+        const footMaterial = new THREE.MeshStandardMaterial({ 
+            color: 0xff0000,
+            roughness: 0.5,
+            metalness: 0.5
+        });
+        
+        const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
+        leftFoot.position.set(-0.15, -0.45, 0);
+        leftFoot.castShadow = true;
+        playerGroup.add(leftFoot);
+        
+        const rightFoot = new THREE.Mesh(footGeometry, footMaterial);
+        rightFoot.position.set(0.15, -0.45, 0);
+        rightFoot.castShadow = true;
+        playerGroup.add(rightFoot);
         
         this.localPlayer = playerGroup;
         this.localPlayer.position.set(0, 1, 0);
