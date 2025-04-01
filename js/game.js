@@ -467,8 +467,8 @@ class Game {
             this.localPlayer.position.y += this.velocity.y;
             
             // 바닥 충돌 체크
-            if (this.localPlayer.position.y < 0.5) {
-                this.localPlayer.position.y = 0.5;
+            if (this.localPlayer.position.y < 0.2) {
+                this.localPlayer.position.y = 0.2;
                 this.velocity.y = 0;
                 this.controls.canJump = true;
             }
@@ -547,7 +547,7 @@ class Game {
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0.5, 0); // 높이를 0.5로 설정
+        this.localPlayer.position.set(0, 0.2, 0); // 높이를 0.2로 설정
         this.scene.add(this.localPlayer);
     }
 
