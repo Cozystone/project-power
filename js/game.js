@@ -303,7 +303,7 @@ class Game {
             metalness: 0.5
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = 0.5;
+        body.position.y = 0;
         body.castShadow = true;
         playerGroup.add(body);
         
@@ -315,7 +315,7 @@ class Game {
             metalness: 0.5
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = 1.5;
+        head.position.y = 1;
         head.castShadow = true;
         playerGroup.add(head);
         
@@ -329,14 +329,14 @@ class Game {
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
         leftArm.name = 'leftArm';
-        leftArm.position.set(-0.4, 1, 0);
+        leftArm.position.set(-0.4, 0.5, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
         rightArm.name = 'rightArm';
-        rightArm.position.set(0.4, 1, 0);
+        rightArm.position.set(0.4, 0.5, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
         playerGroup.add(rightArm);
@@ -350,12 +350,12 @@ class Game {
         });
         
         const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-        leftLeg.position.set(-0.2, 0, 0);
+        leftLeg.position.set(-0.2, -0.35, 0);
         leftLeg.castShadow = true;
         playerGroup.add(leftLeg);
         
         const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-        rightLeg.position.set(0.2, 0, 0);
+        rightLeg.position.set(0.2, -0.35, 0);
         rightLeg.castShadow = true;
         playerGroup.add(rightLeg);
         
@@ -467,8 +467,8 @@ class Game {
             this.localPlayer.position.y += this.velocity.y;
             
             // 바닥 충돌 체크
-            if (this.localPlayer.position.y < 0.5) {
-                this.localPlayer.position.y = 0.5;
+            if (this.localPlayer.position.y < 0) {
+                this.localPlayer.position.y = 0;
                 this.velocity.y = 0;
                 this.controls.canJump = true;
             }
@@ -490,7 +490,7 @@ class Game {
             metalness: 0.5
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = 0.5;
+        body.position.y = 0;
         body.castShadow = true;
         playerGroup.add(body);
         
@@ -502,7 +502,7 @@ class Game {
             metalness: 0.5
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = 1.5;
+        head.position.y = 1;
         head.castShadow = true;
         playerGroup.add(head);
         
@@ -516,14 +516,14 @@ class Game {
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
         leftArm.name = 'leftArm';
-        leftArm.position.set(-0.4, 1, 0);
+        leftArm.position.set(-0.4, 0.5, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
         rightArm.name = 'rightArm';
-        rightArm.position.set(0.4, 1, 0);
+        rightArm.position.set(0.4, 0.5, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
         playerGroup.add(rightArm);
@@ -537,17 +537,17 @@ class Game {
         });
         
         const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-        leftLeg.position.set(-0.2, 0, 0);
+        leftLeg.position.set(-0.2, -0.35, 0);
         leftLeg.castShadow = true;
         playerGroup.add(leftLeg);
         
         const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-        rightLeg.position.set(0.2, 0, 0);
+        rightLeg.position.set(0.2, -0.35, 0);
         rightLeg.castShadow = true;
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0, 0); // 초기 위치를 0으로 설정
+        this.localPlayer.position.set(0, 0.5, 0); // 발 높이만큼 올림
         this.scene.add(this.localPlayer);
     }
 
