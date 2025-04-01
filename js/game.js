@@ -607,7 +607,7 @@ class Game {
         playerGroup.add(rightFoot);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0.5, 0); // 발 높이만큼 올림
+        this.localPlayer.position.set(0, 1.5, 0); // 캐릭터 전체 높이의 절반만큼 올림
         this.scene.add(this.localPlayer);
     }
 
