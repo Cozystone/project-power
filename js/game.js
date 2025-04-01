@@ -467,8 +467,8 @@ class Game {
             this.localPlayer.position.y += this.velocity.y;
             
             // 바닥 충돌 체크
-            if (this.localPlayer.position.y < 0) {
-                this.localPlayer.position.y = 0;
+            if (this.localPlayer.position.y < 1) {
+                this.localPlayer.position.y = 1;
                 this.velocity.y = 0;
                 this.controls.canJump = true;
             }
