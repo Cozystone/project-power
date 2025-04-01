@@ -296,43 +296,31 @@ class Game {
         const playerGroup = new THREE.Group();
         
         // 몸체
-        const bodyGeometry = new THREE.CylinderGeometry(0.2, 0.25, 1.5, 12);
+        const bodyGeometry = new THREE.CylinderGeometry(0.3, 0.3, 1, 8);
         const bodyMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x0000ff,
             roughness: 0.5,
             metalness: 0.5
         });
         const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-        body.position.y = 0.75;
+        body.position.y = 0.5;
         body.castShadow = true;
         playerGroup.add(body);
         
         // 머리
-        const headGeometry = new THREE.SphereGeometry(0.2, 16, 16);
+        const headGeometry = new THREE.SphereGeometry(0.3, 16, 16);
         const headMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x0000ff,
             roughness: 0.5,
             metalness: 0.5
         });
         const head = new THREE.Mesh(headGeometry, headMaterial);
-        head.position.y = 2.3;
+        head.position.y = 1.5;
         head.castShadow = true;
         playerGroup.add(head);
         
-        // 목
-        const neckGeometry = new THREE.CylinderGeometry(0.08, 0.1, 0.2, 8);
-        const neckMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x0000ff,
-            roughness: 0.5,
-            metalness: 0.5
-        });
-        const neck = new THREE.Mesh(neckGeometry, neckMaterial);
-        neck.position.y = 2;
-        neck.castShadow = true;
-        playerGroup.add(neck);
-        
         // 팔
-        const armGeometry = new THREE.CylinderGeometry(0.06, 0.08, 0.7, 8);
+        const armGeometry = new THREE.CylinderGeometry(0.1, 0.1, 0.5, 8);
         const armMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x0000ff,
             roughness: 0.5,
@@ -341,20 +329,20 @@ class Game {
         
         const leftArm = new THREE.Mesh(armGeometry, armMaterial);
         leftArm.name = 'leftArm';
-        leftArm.position.set(-0.35, 1.5, 0);
+        leftArm.position.set(-0.4, 1, 0);
         leftArm.rotation.z = Math.PI / 4;
         leftArm.castShadow = true;
         playerGroup.add(leftArm);
         
         const rightArm = new THREE.Mesh(armGeometry, armMaterial);
         rightArm.name = 'rightArm';
-        rightArm.position.set(0.35, 1.5, 0);
+        rightArm.position.set(0.4, 1, 0);
         rightArm.rotation.z = -Math.PI / 4;
         rightArm.castShadow = true;
         playerGroup.add(rightArm);
         
         // 다리
-        const legGeometry = new THREE.CylinderGeometry(0.1, 0.12, 0.9, 8);
+        const legGeometry = new THREE.CylinderGeometry(0.15, 0.15, 0.7, 8);
         const legMaterial = new THREE.MeshStandardMaterial({ 
             color: 0x0000ff,
             roughness: 0.5,
@@ -362,34 +350,16 @@ class Game {
         });
         
         const leftLeg = new THREE.Mesh(legGeometry, legMaterial);
-        leftLeg.position.set(-0.12, 0, 0);
+        leftLeg.position.set(-0.2, 0, 0);
         leftLeg.castShadow = true;
         playerGroup.add(leftLeg);
         
         const rightLeg = new THREE.Mesh(legGeometry, legMaterial);
-        rightLeg.position.set(0.12, 0, 0);
+        rightLeg.position.set(0.2, 0, 0);
         rightLeg.castShadow = true;
         playerGroup.add(rightLeg);
         
-        // 발
-        const footGeometry = new THREE.BoxGeometry(0.15, 0.1, 0.25);
-        const footMaterial = new THREE.MeshStandardMaterial({ 
-            color: 0x0000ff,
-            roughness: 0.5,
-            metalness: 0.5
-        });
-        
-        const leftFoot = new THREE.Mesh(footGeometry, footMaterial);
-        leftFoot.position.set(-0.12, -0.5, 0);
-        leftFoot.castShadow = true;
-        playerGroup.add(leftFoot);
-        
-        const rightFoot = new THREE.Mesh(footGeometry, footMaterial);
-        rightFoot.position.set(0.12, -0.5, 0);
-        rightFoot.castShadow = true;
-        playerGroup.add(rightFoot);
-        
-        playerGroup.position.set(player.position.x, player.position.y, player.position.z);
+        playerGroup.position.set(player.position.x, player.position.y + 0.5, player.position.z); // 발 높이만큼 올림
         playerGroup.rotation.y = player.rotation.y;
         
         // 플레이어 ID 텍스트 추가
