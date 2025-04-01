@@ -124,7 +124,7 @@ class Game {
     createBuildings() {
         // 건물 텍스처 로드
         const buildingTexture = this.textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
-        const windowTexture = this.textureLoader.load('https://threejs.org/examples/textures/glass.png');
+        const windowTexture = this.textureLoader.load('https://threejs.org/examples/textures/terrain/grasslight-big.jpg');
         
         // 여러 개의 건물 생성
         for (let i = 0; i < 20; i++) {
@@ -547,7 +547,7 @@ class Game {
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 0.5, 0); // 발 높이만큼 올림
+        this.localPlayer.position.set(0, 0.5, 1); // z좌표를 1로 올림
         this.scene.add(this.localPlayer);
     }
 
