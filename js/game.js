@@ -121,15 +121,20 @@ class Game {
             'https://drive.google.com/uc?export=download&id=11O3JfAOxDDeDeqJ1f8P3_P61lxAmjYYi',
             (gltf) => {
                 const model = gltf.scene;
-                // 모델 크기 조정
-                model.scale.set(0.1, 0.1, 0.1);
-                // 모델 위치 설정
+                // 모델 크기를 크게 조정
+                model.scale.set(10, 10, 10);
+                // 모델을 플레이어 주변에 배치
                 model.position.set(0, 0, 0);
                 // 그림자 설정
                 model.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        // 재질 설정 개선
+                        if (child.material) {
+                            child.material.roughness = 0.7;
+                            child.material.metalness = 0.3;
+                        }
                     }
                 });
                 this.scene.add(model);
