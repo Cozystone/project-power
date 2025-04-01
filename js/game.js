@@ -547,7 +547,7 @@ class Game {
         playerGroup.add(rightLeg);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 1, 1); // y좌표를 1로 올림
+        this.localPlayer.position.set(0, 0, 2); // z좌표를 2로 올림
         this.scene.add(this.localPlayer);
     }
 
