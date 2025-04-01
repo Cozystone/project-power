@@ -506,8 +506,8 @@ class Game {
         head.castShadow = true;
         playerGroup.add(head);
         
-        // 목
-        const neckGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.3, 8);
+        // 목 (원래 길이로 복원)
+        const neckGeometry = new THREE.CylinderGeometry(0.1, 0.15, 0.2, 8);
         const neckMaterial = new THREE.MeshStandardMaterial({ 
             color: 0xff0000,
             roughness: 0.5,
@@ -577,7 +577,7 @@ class Game {
         playerGroup.add(rightFoot);
         
         this.localPlayer = playerGroup;
-        this.localPlayer.position.set(0, 1, 0);
+        this.localPlayer.position.set(0, 0.45, 0); // 발 높이만큼 올림
         this.scene.add(this.localPlayer);
     }
 
