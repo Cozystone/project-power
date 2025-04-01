@@ -424,7 +424,7 @@ class Game {
     updateCamera() {
         if (this.localPlayer) {
             // 카메라 위치 계산
-            const cameraOffset = new THREE.Vector3(0, 2, 3); // 높이와 거리 조정
+            const cameraOffset = new THREE.Vector3(0, 2, 5); // 원래 거리로 복원
             cameraOffset.applyQuaternion(new THREE.Quaternion().setFromEuler(new THREE.Euler(this.cameraRotation.x, this.cameraRotation.y, 0)));
             
             // 카메라 위치 설정
@@ -433,7 +433,7 @@ class Game {
             // 카메라가 플레이어를 바라보도록 설정
             const lookAtPosition = new THREE.Vector3();
             lookAtPosition.copy(this.localPlayer.position);
-            lookAtPosition.y += 1.5; // 플레이어의 몸체 중앙을 바라보도록 조정
+            lookAtPosition.y += 1.5;
             this.camera.lookAt(lookAtPosition);
         }
     }
