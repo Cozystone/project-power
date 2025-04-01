@@ -124,7 +124,7 @@ class Game {
     createBuildings() {
         // 건물 텍스처 로드
         const buildingTexture = this.textureLoader.load('https://threejs.org/examples/textures/brick_diffuse.jpg');
-        const windowTexture = this.textureLoader.load('https://threejs.org/examples/textures/window.png');
+        const windowTexture = this.textureLoader.load('https://threejs.org/examples/textures/glass.png');
         
         // 여러 개의 건물 생성
         for (let i = 0; i < 20; i++) {
