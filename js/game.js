@@ -118,7 +118,7 @@ class Game {
 
         // 3D 모델 로드
         this.loader.load(
-            'https://drive.google.com/uc?export=download&id=11O3JfAOxDDeDeqJ1f8P3_P61lxAmjYYi',
+            '/models/scene.glb',
             (gltf) => {
                 const model = gltf.scene;
                 // 모델 크기를 크게 조정
