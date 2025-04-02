@@ -116,40 +116,55 @@ class Game {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // 3D 모델 로드
-        this.loader.load(
-            './models/scene.glb',
-            (gltf) => {
-                const model = gltf.scene;
-                // 모델 크기를 크게 조정
-                model.scale.set(10, 10, 10);
-                // 모델을 플레이어 주변에 배치
-                model.position.set(0, 0, 0);
-                // 그림자 설정
-                model.traverse((child) => {
-                    if (child.isMesh) {
-                        child.castShadow = true;
-                        child.receiveShadow = true;
-                        // 재질 설정 개선
-                        if (child.material) {
-                            child.material.roughness = 0.7;
-                            child.material.metalness = 0.3;
-                        }
-                    }
-                });
-                this.scene.add(model);
-            },
-            (xhr) => {
-                console.log((xhr.loaded / xhr.total * 100) + '% loaded');
-            },
-            (error) => {
-                console.error('모델 로딩 중 오류 발생:', error);
-            }
-        );
+        // 분할된 건물 모델들 로드
+        this.loadBuildingModels();
 
         // 카메라 위치 설정
         this.camera.position.set(0, 2, 5);
         this.camera.lookAt(0, 0, 0);
+    }
+
+    loadBuildingModels() {
+        // 건물 모델들의 위치 정보
+        const buildingPositions = [
+            { x: -20, z: -20, scale: 1 },
+            { x: 20, z: -20, scale: 1 },
+            { x: -20, z: 20, scale: 1 },
+            { x: 20, z: 20, scale: 1 },
+            { x: 0, z: 0, scale: 1.5 }
+        ];
+
+        // 각 건물 모델 로드
+        buildingPositions.forEach((pos, index) => {
+            this.loader.load(
+                `./models/buildings/building_${index + 1}.glb`,
+                (gltf) => {
+                    const model = gltf.scene;
+                    model.scale.set(pos.scale, pos.scale, pos.scale);
+                    model.position.set(pos.x, 0, pos.z);
+                    
+                    // 그림자 설정
+                    model.traverse((child) => {
+                        if (child.isMesh) {
+                            child.castShadow = true;
+                            child.receiveShadow = true;
+                            if (child.material) {
+                                child.material.roughness = 0.7;
+                                child.material.metalness = 0.3;
+                            }
+                        }
+                    });
+                    
+                    this.scene.add(model);
+                },
+                (xhr) => {
+                    console.log(`건물 ${index + 1} 로딩: ${(xhr.loaded / xhr.total * 100)}%`);
+                },
+                (error) => {
+                    console.error(`건물 ${index + 1} 로딩 오류:`, error);
+                }
+            );
+        });
     }
 
     createBuildings() {
