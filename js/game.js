@@ -118,7 +118,7 @@ class Game {
 
         // 3D 모델 로드
         this.loader.load(
-            '/models/scene.glb',
+            './models/scene.glb',
             (gltf) => {
                 const model = gltf.scene;
                 // 모델 크기를 크게 조정
@@ -276,51 +276,13 @@ class Game {
     }
 
     async updatePlayerState() {
-        try {
-            const response = await fetch('/api/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: this.playerId,
-                    position: this.localPlayer ? this.localPlayer.position : { x: 0, y: 0, z: 0 },
-                    rotation: this.localPlayer ? { y: this.localPlayer.rotation.y } : { y: 0 },
-                    health: this.health,
-                    weapons: this.weapons,
-                    powerUps: this.powerUps
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update player state');
-            }
-        } catch (error) {
-            console.error('플레이어 상태 업데이트 오류:', error);
-        }
+        // 임시로 서버 통신 없이 상태 업데이트
+        return;
     }
 
     async fetchPlayers() {
-        try {
-            const response = await fetch('/api/players');
-            if (!response.ok) {
-                throw new Error('Failed to fetch players');
-            }
-            const playersList = await response.json();
-            
-            // 기존 플레이어 제거
-            this.players.forEach(player => this.scene.remove(player));
-            this.players.clear();
-
-            // 새로운 플레이어 추가
-            playersList.forEach(player => {
-                if (player.id !== this.playerId) {
-                    this.addPlayer(player);
-                }
-            });
-        } catch (error) {
-            console.error('플레이어 목록 조회 오류:', error);
-        }
+        // 임시로 서버 통신 없이 로컬 플레이어만 표시
+        return;
     }
 
     addPlayer(player) {
