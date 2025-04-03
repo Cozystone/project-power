@@ -122,8 +122,8 @@ class Game {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // 분할된 건물 모델들 대신 기본 건물 생성
-        this.createBuildings();
+        // 분할된 건물 모델들 로드
+        this.loadBuildingModels();
 
         // 카메라 위치 설정
         this.camera.position.set(0, 2, 5);
