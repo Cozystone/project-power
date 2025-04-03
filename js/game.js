@@ -146,7 +146,7 @@ class Game {
         // 각 건물 모델 로드
         buildingPositions.forEach((pos, index) => {
             this.loader.load(
-                `./models/buildings/building_${index + 1}.glb`,
+                `https://drive.google.com/uc?export=view&id=1oim7K979TuKldVgV7qujO7SiHBJcPwOV`,
                 (gltf) => {
                     const model = gltf.scene;
                     model.scale.set(pos.scale, pos.scale, pos.scale);
