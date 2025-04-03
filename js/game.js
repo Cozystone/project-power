@@ -152,19 +152,90 @@ class Game {
                     model.scale.set(pos.scale, pos.scale, pos.scale);
                     model.position.set(pos.x, 0, pos.z);
                     
-                    // 그림자 설정
-                    model.traverse((child) => {
-                        if (child.isMesh) {
-                            child.castShadow = true;
-                            child.receiveShadow = true;
-                            if (child.material) {
-                                child.material.roughness = 0.7;
-                                child.material.metalness = 0.3;
-                            }
-                        }
-                    });
+                    // 모델을 9개의 부분으로 나누기
+                    const boundingBox = new THREE.Box3().setFromObject(model);
+                    const size = boundingBox.getSize(new THREE.Vector3());
                     
-                    this.scene.add(model);
+                    // 각 부분의 크기 계산
+                    const partSize = {
+                        x: size.x / 3,
+                        y: size.y,
+                        z: size.z / 3
+                    };
+                    
+                    // 9개의 부분으로 나누기
+                    for (let i = 0; i < 3; i++) {
+                        for (let j = 0; j < 3; j++) {
+                            const part = model.clone();
+                            
+                            // 각 부분의 위치 계산
+                            const partX = pos.x + (i - 1) * partSize.x;
+                            const partZ = pos.z + (j - 1) * partSize.z;
+                            
+                            // 각 부분의 경계 계산
+                            const minX = boundingBox.min.x + i * partSize.x;
+                            const maxX = minX + partSize.x;
+                            const minZ = boundingBox.min.z + j * partSize.z;
+                            const maxZ = minZ + partSize.z;
+                            
+                            // 각 부분의 메시 필터링
+                            part.traverse((child) => {
+                                if (child.isMesh) {
+                                    const geometry = child.geometry;
+                                    const position = geometry.attributes.position;
+                                    const vertices = [];
+                                    
+                                    // 각 정점이 해당 부분에 속하는지 확인
+                                    for (let k = 0; k < position.count; k++) {
+                                        const x = position.getX(k);
+                                        const z = position.getZ(k);
+                                        
+                                        if (x >= minX && x <= maxX && z >= minZ && z <= maxZ) {
+                                            vertices.push(k);
+                                        }
+                                    }
+                                    
+                                    // 해당 부분에 속하는 정점만 남기기
+                                    if (vertices.length > 0) {
+                                        const newGeometry = new THREE.BufferGeometry();
+                                        const newPosition = new Float32Array(vertices.length * 3);
+                                        
+                                        for (let k = 0; k < vertices.length; k++) {
+                                            const index = vertices[k];
+                                            newPosition[k * 3] = position.getX(index);
+                                            newPosition[k * 3 + 1] = position.getY(index);
+                                            newPosition[k * 3 + 2] = position.getZ(index);
+                                        }
+                                        
+                                        newGeometry.setAttribute('position', new THREE.BufferAttribute(newPosition, 3));
+                                        child.geometry = newGeometry;
+                                    } else {
+                                        child.visible = false;
+                                    }
+                                }
+                            });
+                            
+                            // 각 부분의 위치 설정
+                            part.position.set(partX, 0, partZ);
+                            
+                            // 그림자 설정
+                            part.traverse((child) => {
+                                if (child.isMesh) {
+                                    child.castShadow = true;
+                                    child.receiveShadow = true;
+                                    if (child.material) {
+                                        child.material.roughness = 0.7;
+                                        child.material.metalness = 0.3;
+                                    }
+                                }
+                            });
+                            
+                            this.scene.add(part);
+                        }
+                    }
+                    
+                    // 원본 모델 제거
+                    this.scene.remove(model);
                 },
                 (xhr) => {
                     console.log(`건물 ${index + 1} 로딩: ${(xhr.loaded / xhr.total * 100)}%`);
