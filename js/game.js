@@ -9,8 +9,8 @@ class Game {
         // GLTFLoader 추가
         this.loader = new THREE.GLTFLoader();
         
-        // OBJLoader 추가
-        this.objLoader = new THREE.OBJLoader();
+        // USDZLoader 추가
+        this.usdzLoader = new THREE.USDZLoader();
 
         this.players = new Map();
         this.localPlayer = null;
@@ -138,9 +138,9 @@ class Game {
     }
 
     loadBackgroundModel() {
-        // OBJ 파일 로드
-        this.objLoader.load(
-            'models/background.obj',
+        // USDZ 파일 로드
+        this.usdzLoader.load(
+            'models/background.usdz',
             (object) => {
                 // 모델 크기 조정
                 object.scale.set(10, 10, 10);
@@ -153,6 +153,12 @@ class Game {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
+                        
+                        // 재질 설정
+                        if (child.material) {
+                            child.material.roughness = 0.7;
+                            child.material.metalness = 0.3;
+                        }
                     }
                 });
                 
