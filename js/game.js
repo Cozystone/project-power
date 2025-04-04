@@ -8,6 +8,9 @@ class Game {
 
         // GLTFLoader 추가
         this.loader = new THREE.GLTFLoader();
+        
+        // OBJLoader 추가
+        this.objLoader = new THREE.OBJLoader();
 
         this.players = new Map();
         this.localPlayer = null;
@@ -123,8 +126,8 @@ class Game {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // 분할된 건물 모델들 로드
-        this.loadBuildingModels();
+        // 배경 모델 로드
+        this.loadBackgroundModel();
 
         // 카메라 위치 설정
         this.camera.position.set(0, 2, 5);
@@ -132,6 +135,36 @@ class Game {
 
         // 건물 청크 초기화
         this.initializeBuildingChunks();
+    }
+
+    loadBackgroundModel() {
+        // OBJ 파일 로드
+        this.objLoader.load(
+            'models/background.obj',
+            (object) => {
+                // 모델 크기 조정
+                object.scale.set(10, 10, 10);
+                
+                // 모델 위치 설정
+                object.position.set(0, 0, 0);
+                
+                // 그림자 설정
+                object.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
+                    }
+                });
+                
+                this.scene.add(object);
+            },
+            (xhr) => {
+                console.log(`배경 모델 로딩: ${(xhr.loaded / xhr.total * 100)}%`);
+            },
+            (error) => {
+                console.error('배경 모델 로딩 오류:', error);
+            }
+        );
     }
 
     loadBuildingModels() {
