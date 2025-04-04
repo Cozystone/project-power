@@ -25,6 +25,13 @@ class Game {
         // 텍스처 로더 추가
         this.textureLoader = new THREE.TextureLoader();
 
+        // 청크 시스템 초기화
+        this.chunkSize = 30; // 청크 크기를 30으로 조정
+        this.visibleRange = 3; // 시야 범위를 3청크로 확장 (90유닛)
+        this.combatRange = 100; // 전투 가능 거리
+        this.loadedChunks = new Set();
+        this.buildingChunks = new Map();
+
         this.setupControls();
         this.setupScene();
         this.setupEventListeners();
@@ -36,12 +43,6 @@ class Game {
 
         // 초기 플레이어 상태 설정
         this.updatePlayerState();
-
-        this.chunkSize = 30; // 청크 크기를 30으로 조정
-        this.visibleRange = 3; // 시야 범위를 3청크로 확장 (90유닛)
-        this.combatRange = 100; // 전투 가능 거리
-        this.loadedChunks = new Set();
-        this.buildingChunks = new Map();
     }
 
     setupControls() {
