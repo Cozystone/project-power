@@ -6,6 +6,9 @@ class Game {
         this.renderer.setSize(window.innerWidth, window.innerHeight);
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
+        // GLTFLoader 추가
+        this.loader = new THREE.GLTFLoader();
+
         this.players = new Map();
         this.localPlayer = null;
         this.health = 100;
@@ -21,6 +24,13 @@ class Game {
 
         // 텍스처 로더 추가
         this.textureLoader = new THREE.TextureLoader();
+
+        // 청크 시스템 초기화
+        this.chunkSize = 30; // 청크 크기를 30으로 조정
+        this.visibleRange = 3; // 시야 범위를 3청크로 확장 (90유닛)
+        this.combatRange = 100; // 전투 가능 거리
+        this.loadedChunks = new Set();
+        this.buildingChunks = new Map();
 
         this.setupControls();
         this.setupScene();
@@ -113,12 +123,73 @@ class Game {
         const sky = new THREE.Mesh(skyGeometry, skyMaterial);
         this.scene.add(sky);
 
-        // 건물들 생성
-        this.createBuildings();
+        // 분할된 건물 모델들 로드
+        this.loadBuildingModels();
 
         // 카메라 위치 설정
         this.camera.position.set(0, 2, 5);
         this.camera.lookAt(0, 0, 0);
+
+        // 건물 청크 초기화
+        this.initializeBuildingChunks();
+    }
+
+    loadBuildingModels() {
+        // 건물 모델들의 위치 정보 - 더 넓은 범위로 배치
+        const buildingPositions = [
+            { x: -40, z: -40, scale: 1 },
+            { x: 40, z: -40, scale: 1 },
+            { x: -40, z: 40, scale: 1 },
+            { x: 40, z: 40, scale: 1 },
+            { x: 0, z: 0, scale: 1.5 }
+        ];
+
+        // 각 건물을 박스로 생성
+        buildingPositions.forEach((pos, index) => {
+            // 건물 크기 랜덤 설정
+            const width = 10 * pos.scale;
+            const height = (15 + Math.random() * 10) * pos.scale;
+            const depth = 10 * pos.scale;
+
+            // 건물 지오메트리 생성
+            const geometry = new THREE.BoxGeometry(width, height, depth);
+            const material = new THREE.MeshStandardMaterial({
+                color: 0x808080,
+                roughness: 0.7,
+                metalness: 0.3
+            });
+
+            const building = new THREE.Mesh(geometry, material);
+            building.position.set(pos.x, height/2, pos.z);
+            building.castShadow = true;
+            building.receiveShadow = true;
+            building.name = `building_${index + 1}`;
+
+            // 창문 텍스처 추가
+            const windowGeometry = new THREE.PlaneGeometry(width * 0.8, height * 0.8);
+            const windowMaterial = new THREE.MeshBasicMaterial({
+                color: 0x88ccff,
+                transparent: true,
+                opacity: 0.5
+            });
+
+            // 각 면에 창문 추가
+            const sides = [
+                { position: [0, 0, depth/2 + 0.1], rotation: [0, 0, 0] },
+                { position: [0, 0, -depth/2 - 0.1], rotation: [0, Math.PI, 0] },
+                { position: [width/2 + 0.1, 0, 0], rotation: [0, Math.PI/2, 0] },
+                { position: [-width/2 - 0.1, 0, 0], rotation: [0, -Math.PI/2, 0] }
+            ];
+
+            sides.forEach(side => {
+                const window = new THREE.Mesh(windowGeometry, windowMaterial);
+                window.position.set(...side.position);
+                window.rotation.set(...side.rotation);
+                building.add(window);
+            });
+
+            this.scene.add(building);
+        });
     }
 
     createBuildings() {
@@ -245,51 +316,13 @@ class Game {
     }
 
     async updatePlayerState() {
-        try {
-            const response = await fetch('/api/update', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    id: this.playerId,
-                    position: this.localPlayer ? this.localPlayer.position : { x: 0, y: 0, z: 0 },
-                    rotation: this.localPlayer ? { y: this.localPlayer.rotation.y } : { y: 0 },
-                    health: this.health,
-                    weapons: this.weapons,
-                    powerUps: this.powerUps
-                })
-            });
-
-            if (!response.ok) {
-                throw new Error('Failed to update player state');
-            }
-        } catch (error) {
-            console.error('플레이어 상태 업데이트 오류:', error);
-        }
+        // 임시로 서버 통신 없이 상태 업데이트
+        return;
     }
 
     async fetchPlayers() {
-        try {
-            const response = await fetch('/api/players');
-            if (!response.ok) {
-                throw new Error('Failed to fetch players');
-            }
-            const playersList = await response.json();
-            
-            // 기존 플레이어 제거
-            this.players.forEach(player => this.scene.remove(player));
-            this.players.clear();
-
-            // 새로운 플레이어 추가
-            playersList.forEach(player => {
-                if (player.id !== this.playerId) {
-                    this.addPlayer(player);
-                }
-            });
-        } catch (error) {
-            console.error('플레이어 목록 조회 오류:', error);
-        }
+        // 임시로 서버 통신 없이 로컬 플레이어만 표시
+        return;
     }
 
     addPlayer(player) {
@@ -562,6 +595,87 @@ class Game {
         this.fetchPlayers();
         this.renderer.render(this.scene, this.camera);
         requestAnimationFrame(() => this.animate());
+    }
+
+    initializeBuildingChunks() {
+        // 건물을 청크별로 그룹화
+        const buildings = this.scene.children.filter(child => 
+            child.name.startsWith('building_')
+        );
+
+        buildings.forEach(building => {
+            const position = building.position;
+            const chunkX = Math.floor(position.x / this.chunkSize);
+            const chunkZ = Math.floor(position.z / this.chunkSize);
+            const chunkKey = `${chunkX},${chunkZ}`;
+
+            if (!this.buildingChunks.has(chunkKey)) {
+                this.buildingChunks.set(chunkKey, new THREE.Group());
+                this.scene.add(this.buildingChunks.get(chunkKey));
+            }
+
+            this.buildingChunks.get(chunkKey).add(building);
+        });
+    }
+
+    updateChunks() {
+        const playerChunkX = Math.floor(this.localPlayer.position.x / this.chunkSize);
+        const playerChunkZ = Math.floor(this.localPlayer.position.z / this.chunkSize);
+
+        // 새로운 청크 계산 - 시야 범위 확장
+        const newChunks = new Set();
+        
+        // 플레이어 주변 청크 계산
+        for (let x = playerChunkX - this.visibleRange; x <= playerChunkX + this.visibleRange; x++) {
+            for (let z = playerChunkZ - this.visibleRange; z <= playerChunkZ + this.visibleRange; z++) {
+                newChunks.add(`${x},${z}`);
+            }
+        }
+
+        // 다른 플레이어 주변 청크도 계산
+        this.players.forEach((player, id) => {
+            if (id !== this.playerId) {
+                const otherPlayerChunkX = Math.floor(player.position.x / this.chunkSize);
+                const otherPlayerChunkZ = Math.floor(player.position.z / this.chunkSize);
+                
+                // 전투 가능 거리 내의 플레이어만 고려
+                const distance = this.localPlayer.position.distanceTo(player.position);
+                if (distance <= this.combatRange) {
+                    for (let x = otherPlayerChunkX - this.visibleRange; x <= otherPlayerChunkX + this.visibleRange; x++) {
+                        for (let z = otherPlayerChunkZ - this.visibleRange; z <= otherPlayerChunkZ + this.visibleRange; z++) {
+                            newChunks.add(`${x},${z}`);
+                        }
+                    }
+                }
+            }
+        });
+
+        // 보이지 않는 청크 숨기기
+        this.loadedChunks.forEach(chunkKey => {
+            if (!newChunks.has(chunkKey)) {
+                const chunk = this.buildingChunks.get(chunkKey);
+                if (chunk) {
+                    chunk.visible = false;
+                }
+                this.loadedChunks.delete(chunkKey);
+            }
+        });
+
+        // 새로운 청크 보이기
+        newChunks.forEach(chunkKey => {
+            if (!this.loadedChunks.has(chunkKey)) {
+                const chunk = this.buildingChunks.get(chunkKey);
+                if (chunk) {
+                    chunk.visible = true;
+                }
+                this.loadedChunks.add(chunkKey);
+            }
+        });
+    }
+
+    update() {
+        // 청크 업데이트
+        this.updateChunks();
     }
 }
 
