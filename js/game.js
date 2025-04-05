@@ -1,3 +1,7 @@
+import * as THREE from 'three';
+import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
+
 class Game {
     constructor() {
         this.scene = new THREE.Scene();
@@ -7,10 +11,10 @@ class Game {
         document.getElementById('game-container').appendChild(this.renderer.domElement);
 
         // GLTFLoader 추가
-        this.loader = new THREE.GLTFLoader();
+        this.loader = new GLTFLoader();
         
         // USDZ 로더 초기화
-        this.usdzLoader = new USDALoader();
+        this.usdzLoader = new USDZLoader();
 
         this.players = new Map();
         this.localPlayer = null;
