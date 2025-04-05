@@ -22,15 +22,18 @@
             font-size: 20px;
         }
         #health-bar {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
             width: 200px;
             height: 20px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 2px solid white;
+            background-color: #333;
+            border: 2px solid #fff;
         }
         #health-fill {
             width: 100%;
             height: 100%;
-            background: red;
+            background-color: #f00;
             transition: width 0.3s;
         }
         #weapon-slots {
@@ -57,8 +60,11 @@
             <div class="weapon-slot"></div>
         </div>
     </div>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.159.0/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.159.0/examples/jsm/loaders/USDZLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@pixiv/three-vrm@1.0.9/lib/three-vrm.min.js"></script>
+    <script src="https://unpkg.com/@meshsdk/usdz-loader@1.0.0/dist/usdz-loader.min.js"></script>
     <script src="js/game.js"></script>
 </body>
 </html> 

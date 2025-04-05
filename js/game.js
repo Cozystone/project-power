@@ -9,8 +9,8 @@ class Game {
         // GLTFLoader 추가
         this.loader = new THREE.GLTFLoader();
         
-        // USDZLoader 추가
-        this.usdzLoader = new THREE.USDZLoader();
+        // USDZ 로더 초기화
+        this.usdzLoader = new USDALoader();
 
         this.players = new Map();
         this.localPlayer = null;
@@ -21,17 +21,17 @@ class Game {
         this.playerId = Math.random().toString(36).substring(7);
 
         // 카메라 설정
-        this.cameraOffset = new THREE.Vector3(0, 2, 5); // 카메라와 플레이어 사이의 거리
+        this.cameraOffset = new THREE.Vector3(0, 2, 5);
         this.cameraRotation = new THREE.Vector3(0, 0, 0);
-        this.cameraRotation.y = 0; // 좌우 회전 고정
+        this.cameraRotation.y = 0;
 
         // 텍스처 로더 추가
         this.textureLoader = new THREE.TextureLoader();
 
         // 청크 시스템 초기화
-        this.chunkSize = 30; // 청크 크기를 30으로 조정
-        this.visibleRange = 3; // 시야 범위를 3청크로 확장 (90유닛)
-        this.combatRange = 100; // 전투 가능 거리
+        this.chunkSize = 30;
+        this.visibleRange = 3;
+        this.combatRange = 100;
         this.loadedChunks = new Set();
         this.buildingChunks = new Map();
 
@@ -39,12 +39,10 @@ class Game {
         this.setupScene();
         this.setupEventListeners();
         
-        // 로컬 플레이어 초기화
         this.initializeLocalPlayer();
         
         this.animate();
 
-        // 초기 플레이어 상태 설정
         this.updatePlayerState();
     }
 
@@ -139,22 +137,60 @@ class Game {
 
     loadBackgroundModel() {
         // USDZ 파일 로드
-        this.usdzLoader.load(
-            'models/background.usdz',
-            (object) => {
-                // 모델 크기 조정
+        fetch('models/background.usdz')
+            .then(response => response.arrayBuffer())
+            .then(arrayBuffer => {
+                // USDZ 파일을 파싱
+                this.usdzLoader.parse(arrayBuffer)
+                    .then(object => {
+                        // 모델 크기 조정
+                        object.scale.set(10, 10, 10);
+                        
+                        // 모델 위치 설정
+                        object.position.set(0, 0, 0);
+                        
+                        // 그림자 설정
+                        object.traverse((child) => {
+                            if (child.isMesh) {
+                                child.castShadow = true;
+                                child.receiveShadow = true;
+                                
+                                // 재질 설정
+                                if (child.material) {
+                                    child.material.roughness = 0.7;
+                                    child.material.metalness = 0.3;
+                                }
+                            }
+                        });
+                        
+                        this.scene.add(object);
+                    })
+                    .catch(error => {
+                        console.error('USDZ 파싱 오류:', error);
+                        // USDZ 로드 실패 시 GLB로 폴백
+                        this.loadGLBFallback();
+                    });
+            })
+            .catch(error => {
+                console.error('USDZ 파일 로드 오류:', error);
+                // USDZ 로드 실패 시 GLB로 폴백
+                this.loadGLBFallback();
+            });
+    }
+
+    loadGLBFallback() {
+        // GLB 파일로 폴백
+        this.loader.load(
+            'models/background.glb',
+            (gltf) => {
+                const object = gltf.scene;
                 object.scale.set(10, 10, 10);
-                
-                // 모델 위치 설정
                 object.position.set(0, 0, 0);
                 
-                // 그림자 설정
                 object.traverse((child) => {
                     if (child.isMesh) {
                         child.castShadow = true;
                         child.receiveShadow = true;
-                        
-                        // 재질 설정
                         if (child.material) {
                             child.material.roughness = 0.7;
                             child.material.metalness = 0.3;
@@ -165,10 +201,10 @@ class Game {
                 this.scene.add(object);
             },
             (xhr) => {
-                console.log(`배경 모델 로딩: ${(xhr.loaded / xhr.total * 100)}%`);
+                console.log(`GLB 로딩: ${(xhr.loaded / xhr.total * 100)}%`);
             },
             (error) => {
-                console.error('배경 모델 로딩 오류:', error);
+                console.error('GLB 로딩 오류:', error);
             }
         );
     }
