@@ -1,6 +1,5 @@
 import * as THREE from 'three';
 import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
-import { USDZLoader } from 'three/addons/loaders/USDZLoader.js';
 
 class Game {
     constructor() {
@@ -14,7 +13,7 @@ class Game {
         this.loader = new GLTFLoader();
         
         // USDZ 로더 초기화
-        this.usdzLoader = new USDZLoader();
+        this.usdzLoader = new window.UsdzViewer.Loader();
 
         this.players = new Map();
         this.localPlayer = null;
@@ -141,42 +140,32 @@ class Game {
 
     loadBackgroundModel() {
         // USDZ 파일 로드
-        fetch('models/background.usdz')
-            .then(response => response.arrayBuffer())
-            .then(arrayBuffer => {
-                // USDZ 파일을 파싱
-                this.usdzLoader.parse(arrayBuffer)
-                    .then(object => {
-                        // 모델 크기 조정
-                        object.scale.set(10, 10, 10);
+        this.usdzLoader.load('models/background.usdz')
+            .then(object => {
+                // 모델 크기 조정
+                object.scale.set(10, 10, 10);
+                
+                // 모델 위치 설정
+                object.position.set(0, 0, 0);
+                
+                // 그림자 설정
+                object.traverse((child) => {
+                    if (child.isMesh) {
+                        child.castShadow = true;
+                        child.receiveShadow = true;
                         
-                        // 모델 위치 설정
-                        object.position.set(0, 0, 0);
-                        
-                        // 그림자 설정
-                        object.traverse((child) => {
-                            if (child.isMesh) {
-                                child.castShadow = true;
-                                child.receiveShadow = true;
-                                
-                                // 재질 설정
-                                if (child.material) {
-                                    child.material.roughness = 0.7;
-                                    child.material.metalness = 0.3;
-                                }
-                            }
-                        });
-                        
-                        this.scene.add(object);
-                    })
-                    .catch(error => {
-                        console.error('USDZ 파싱 오류:', error);
-                        // USDZ 로드 실패 시 GLB로 폴백
-                        this.loadGLBFallback();
-                    });
+                        // 재질 설정
+                        if (child.material) {
+                            child.material.roughness = 0.7;
+                            child.material.metalness = 0.3;
+                        }
+                    }
+                });
+                
+                this.scene.add(object);
             })
             .catch(error => {
-                console.error('USDZ 파일 로드 오류:', error);
+                console.error('USDZ 로드 오류:', error);
                 // USDZ 로드 실패 시 GLB로 폴백
                 this.loadGLBFallback();
             });
